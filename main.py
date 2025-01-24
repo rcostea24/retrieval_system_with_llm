@@ -88,7 +88,11 @@ if __name__ == "__main__":
             answear = query_without_context(query, llm_model, tokenizer)
 
         answear = answear.split("<intrebare>")[1]
-        print(answear)
+        answear += "\n\n"
+        output_file = f"{args.ir_system}_{args.type}.txt"
+        with open(output_file, "w", encoding="utf-8") as file:
+            file.write(answear)
+
 
 
         
