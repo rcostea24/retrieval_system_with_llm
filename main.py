@@ -37,8 +37,8 @@ def summarize_context(relevant_docs, tokenizer, max_tokens):
     return tokenizer.decode(tokenized.input_ids[0], skip_special_tokens=True)
 
 def query_system(query, relevant_docs, llm_model, tokenizer):
-    summarized_context = summarize_context(relevant_docs, tokenizer, max_tokens=2048)
-    input_text = f"<context> {summarized_context}\n <intrebare> {query}\n <raspuns> "
+    # summarized_context = summarize_context(relevant_docs, tokenizer, max_tokens=2048)
+    input_text = f"<context> {relevant_docs}\n <intrebare> {query}\n <raspuns> "
     inputs = tokenizer(input_text, return_tensors="pt").to(device)
     outputs = llm_model.generate(
         **inputs,
