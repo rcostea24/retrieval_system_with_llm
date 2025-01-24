@@ -4,7 +4,7 @@ import os
 from unidecode import unidecode
 import nltk
 
-from retireval_system.utils import text_preprocessing, word_preprocessing
+from retrieval_system_base.utils import text_preprocessing, word_preprocessing
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 

@@ -1,4 +1,4 @@
-from retireval_system.utils import text_preprocessing, word_preprocessing
+from retrieval_system_base.utils import text_preprocessing, word_preprocessing
 
 class Searcher():
     def __init__(self, inverted_dict):

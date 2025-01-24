@@ -1,8 +1,8 @@
 import argparse
 import os
 import numpy as np
-from retireval_system.indexer import Indexer
-from retireval_system.searcher import Searcher
+from retrieval_system_base.indexer import Indexer
+from retrieval_system_base.searcher import Searcher
 
 def retriev(query, doc_path):
     indexer = Indexer()

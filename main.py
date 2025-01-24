@@ -1,21 +1,14 @@
 import argparse
+import importlib
 import os
 import numpy as np
-from retireval_system.retrieve_documents import retriev
 
-from sklearn.neighbors import KDTree
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 device = "cuda"
-embedding_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2').to(device)
-
-
-
-def create_kdtree_index(embeddings):
-    return KDTree(embeddings, leaf_size=40)
 
 def load_model():
     # Set model name and device
@@ -47,19 +40,11 @@ def summarize_context(relevant_docs, tokenizer, max_tokens=512):
     tokenized = tokenizer(combined_text, truncation=True, max_length=max_tokens, return_tensors="pt")
     return tokenizer.decode(tokenized.input_ids[0], skip_special_tokens=True)
 
-def query_system(query, documents, embedding_model, index, model, tokenizer):
-    # Encode query
-    query_embedding = embedding_model.encode([query])[0]
-    
-    # Search vector index
-    distances, indices = index.query(query_embedding.reshape(1, -1), k=5)
-    relevant_docs = [documents[i] for i in indices[0]]
+def query_system(query, relevant_docs, llm_model, tokenizer):
     summarized_context = summarize_context(relevant_docs, tokenizer, max_tokens=1024)
-
-    # Pass the most relevant documents as context to the model
     input_text = f"<context> {summarized_context}\n <intrebare> {query}\n <raspuns> "
     inputs = tokenizer(input_text, return_tensors="pt").to(device)
-    outputs = model.generate(
+    outputs = llm_model.generate(
         **inputs,
         max_new_tokens=100
     )
@@ -70,17 +55,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--doc_path", default=r"C:\Users\razva\Master1\An2\IRTM\Project2\docs")
     parser.add_argument("--query", default="Cand a fost revolutia americana")
+    parser.add_argument("--ir_system", default="base") # base or kdtree
     args = parser.parse_args()
 
-    relevant_docs, docs, doc_ids, _ = retriev(args.query, args.doc_path)
+    retriev_module = importlib.import_module(f"retrieval_system_{args.ir_system}.retriev_documents")
 
-    # Generate embeddings
-    embeddings = embedding_model.encode(relevant_docs)
-    index = create_kdtree_index(embeddings)
+    if args.ir_system == "base":
+        relevant_docs, _, _, _ = retriev_module.retriev(args.query, args.doc_path)
+    elif args.ir_system == "kdtree":
+        embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-mpnet-base-v2").to(device)
+        relevant_docs = retriev_module.retriev(args.query, args.doc_path, embedding_model)
     
     llm_model, tokenizer = load_model()
 
-    answer = query_system(args.query, relevant_docs, embedding_model, index, llm_model, tokenizer)
+    answer = query_system(args.query, relevant_docs, llm_model, tokenizer)
     print(answer)
 
 
