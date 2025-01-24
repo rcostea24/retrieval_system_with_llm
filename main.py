@@ -11,25 +11,21 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 device = "cuda"
 
 def load_model():
-    # Set model name and device
     model_name = "OpenLLM-Ro/RoLlama2-7b-Base"
     
-    # Configure 4-bit quantization
     bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,  # Enable 4-bit quantization
-        bnb_4bit_use_double_quant=True,  # Use double quantization for better performance
-        bnb_4bit_quant_type="nf4",  # Use "nf4" (normal float 4) quantization type
-        llm_int8_enable_fp32_cpu_offload=True  # Offload layers to CPU if GPU memory is full
+        load_in_4bit=True,  
+        bnb_4bit_use_double_quant=True,  
+        bnb_4bit_quant_type="nf4", 
+        llm_int8_enable_fp32_cpu_offload=True
     )
     
-    # Load model with quantization
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
-        device_map="auto",  # Automatically distribute layers between CPU and GPU
+        device_map="auto", 
     )
     
-    # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     print("Model loaded successfully with 4-bit quantization!")
@@ -69,6 +65,7 @@ if __name__ == "__main__":
     llm_model, tokenizer = load_model()
 
     answer = query_system(args.query, relevant_docs, llm_model, tokenizer)
+    best_answear = answer.split("<raspuns>")[0]
     print(answer)
 
 
