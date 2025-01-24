@@ -31,13 +31,13 @@ def load_model():
     print("Model loaded successfully with 4-bit quantization!")
     return model, tokenizer
 
-def summarize_context(relevant_docs, tokenizer, max_tokens=512):
+def summarize_context(relevant_docs, tokenizer, max_tokens):
     combined_text = " ".join(relevant_docs)
     tokenized = tokenizer(combined_text, truncation=True, max_length=max_tokens, return_tensors="pt")
     return tokenizer.decode(tokenized.input_ids[0], skip_special_tokens=True)
 
 def query_system(query, relevant_docs, llm_model, tokenizer):
-    summarized_context = summarize_context(relevant_docs, tokenizer, max_tokens=1024)
+    summarized_context = summarize_context(relevant_docs, tokenizer, max_tokens=2048)
     input_text = f"<context> {summarized_context}\n <intrebare> {query}\n <raspuns> "
     inputs = tokenizer(input_text, return_tensors="pt").to(device)
     outputs = llm_model.generate(
