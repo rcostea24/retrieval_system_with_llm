@@ -46,11 +46,20 @@ def query_system(query, relevant_docs, llm_model, tokenizer):
     )
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+def query_without_context(query, llm_model, tokenizer):
+    input_text = f"<intrebare> {query}\n <raspuns> "
+    inputs = tokenizer(input_text, return_tensors="pt").to(device)
+    outputs = llm_model.generate(
+        **inputs,
+        max_new_tokens=100
+    )
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--doc_path", default=r"C:\Users\razva\Master1\An2\IRTM\Project2\docs")
     parser.add_argument("--ir_system", default="base") # base or kdtree
+    parser.add_argument("--type", default="ir") # ir or llm or rag
     args = parser.parse_args()
 
     retriev_module = importlib.import_module(f"retrieval_system_{args.ir_system}.retriev_documents")
@@ -60,17 +69,26 @@ if __name__ == "__main__":
         queries = file.readlines()
 
     for query in queries:
-        if args.ir_system == "base":
-            relevant_docs, _, _, _ = retriev_module.retriev(query, args.doc_path)
-        elif args.ir_system == "kdtree":
-            embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-mpnet-base-v2").to(device)
-            relevant_docs = retriev_module.retriev(query, args.doc_path, embedding_model)
-        
+        if args.type in ["ir", "rag"]:
+            if args.ir_system == "base":
+                relevant_docs, relevant_doc_names, _, _ = retriev_module.retriev(query, args.doc_path)
+            elif args.ir_system == "kdtree":
+                embedding_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-mpnet-base-v2").to(device)
+                relevant_docs, relevant_doc_names = retriev_module.retriev(query, args.doc_path, embedding_model)
+
+        if args.type == "ir":
+            print(relevant_doc_names)
+            continue
+
         llm_model, tokenizer = load_model()
 
-        answer = query_system(query, relevant_docs, llm_model, tokenizer)
-        answer = answer.split("<intrebare>")[1]
-        print(answer)
+        if args.type == "rag":
+            answear = query_system(query, relevant_docs, llm_model, tokenizer)
+        elif args.type == "llm":
+            answear = query_without_context(query, llm_model, tokenizer)
+
+        answear = answear.split("<intrebare>")[1]
+        print(answear)
 
 
         

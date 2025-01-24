@@ -28,10 +28,10 @@ def load_docs(doc_path):
                 text = f.read()
         texts.append(text)
 
-    return texts
+    return texts, files
 
 def retriev(query, doc_path, embedding_model):
-    documents = load_docs(doc_path)
+    documents, files = load_docs(doc_path)
 
     embeddings = embedding_model.encode(documents)
     index = KDTree(embeddings, leaf_size=40)
@@ -41,5 +41,7 @@ def retriev(query, doc_path, embedding_model):
     _, indices = index.query(query_embedding.reshape(1, -1), k=2)
     relevant_docs = [documents[i] for i in indices[0]]
 
-    return relevant_docs
+    relevant_doc_names = np.array(files)[indices[0]]
+
+    return relevant_docs, relevant_doc_names
     
