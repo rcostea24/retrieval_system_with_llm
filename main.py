@@ -89,6 +89,7 @@ if __name__ == "__main__":
 
         answear = answear.split("<intrebare>")[1]
         answear += "\n\n"
+        print(answear)
         output_file = f"{args.ir_system}_{args.type}.txt"
         with open(output_file, "w", encoding="utf-8") as file:
             file.write(answear)
