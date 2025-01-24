@@ -78,6 +78,9 @@ if __name__ == "__main__":
 
         if args.type == "ir":
             print(relevant_doc_names)
+            output_file = f"{args.ir_system}_{args.type}.txt"
+            with open(output_file, "a", encoding="utf-8") as file:
+                file.write(relevant_doc_names)
             continue
 
         llm_model, tokenizer = load_model()
@@ -91,7 +94,7 @@ if __name__ == "__main__":
         answear += "\n\n"
         print(answear)
         output_file = f"{args.ir_system}_{args.type}.txt"
-        with open(output_file, "w", encoding="utf-8") as file:
+        with open(output_file, "a", encoding="utf-8") as file:
             file.write(answear)
 
 
