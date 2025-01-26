@@ -114,9 +114,9 @@ def get_best_document_id(query, relevant_docs, llm_model):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--doc_path", default=r"C:\Users\razva\Master1\An2\IRTM\Project2\docs")
-    parser.add_argument("--ir_system", default="kdtree") # base or kdtree
-    parser.add_argument("--type", default="rag") # ir or llm or rag
+    parser.add_argument("--doc_path", default=r"docs")
+    parser.add_argument("--ir_system", default="base") # base or kdtree
+    parser.add_argument("--type", default="ir") # ir or llm or rag
     parser.add_argument("--qa", default="False")
     args = parser.parse_args()
 
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             print(relevant_doc_names)
             output_file = f"{args.ir_system}_{args.type}.txt"
             with open(output_file, "a", encoding="utf-8") as file:
-                file.write(f"{query} \n {str(relevant_doc_names)}")
+                file.write(f"{query} \n {str(relevant_doc_names)}\n")
             continue
 
         llm_model, tokenizer = load_model()
